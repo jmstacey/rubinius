@@ -174,7 +174,7 @@ class IO
       $. = @lineno
     end
 
-    $_ = line
+    line
   end
 
   ##

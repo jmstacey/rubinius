@@ -494,7 +494,6 @@ class IO
 
   def gets(sep_or_limit=$/, limit=nil)
     each sep_or_limit, limit do |line|
-      $_ = line if line
       return line
     end
 

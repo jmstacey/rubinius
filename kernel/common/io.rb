@@ -1031,12 +1031,10 @@ class IO
   def readlines(sep=$/)
     sep = StringValue sep if sep
 
-    old_line = $_
     ary = Array.new
     while line = gets(sep)
       ary << line
     end
-    $_ = old_line
 
     ary
   end
