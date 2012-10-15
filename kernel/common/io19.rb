@@ -349,7 +349,7 @@ class IO
           str << @buffer.shift(count)
 
           str.taint
-          $. = @io.increment_lineno
+          @io.increment_lineno
           @buffer.discard @skip if @skip
 
           yield str
@@ -363,7 +363,7 @@ class IO
       str << @buffer.shift
       unless str.empty?
         str.taint
-        $. = @io.increment_lineno
+        @io.increment_lineno
         yield str
       end
     end
@@ -384,7 +384,7 @@ class IO
           str << @buffer.shift(bytes)
 
           str.taint
-          $. = @io.increment_lineno
+          @io.increment_lineno
           @buffer.discard @skip if @skip
 
           yield str
@@ -396,7 +396,7 @@ class IO
             str << @buffer.shift(wanted)
 
             str.taint
-            $. = @io.increment_lineno
+            @io.increment_lineno
             @buffer.discard @skip if @skip
 
             yield str
@@ -413,7 +413,7 @@ class IO
       str << @buffer.shift
       unless str.empty?
         str.taint
-        $. = @io.increment_lineno
+        @io.increment_lineno
         yield str
       end
     end
@@ -428,7 +428,7 @@ class IO
 
       unless str.empty?
         str.taint
-        $. = @io.increment_lineno
+        @io.increment_lineno
         yield str
       end
     end
@@ -444,7 +444,7 @@ class IO
           str << @buffer.shift(wanted)
 
           str.taint
-          $. = @io.increment_lineno
+          @io.increment_lineno
           yield str
 
           str = ""
