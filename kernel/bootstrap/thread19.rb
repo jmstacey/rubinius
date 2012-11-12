@@ -10,8 +10,7 @@ class Thread
       run obj
       dup
 
-      push_false
-      send :setup, 1, true
+      send :setup, 0, true
       pop
 
       run args
@@ -87,7 +86,7 @@ class Thread
     end
   end
 
-  def setup(prime_lock)
+  def setup
     @group = nil
     @alive = true
     @result = false
@@ -113,5 +112,9 @@ class Thread
     join_inner do
       @killed ? nil : @result
     end
+  end
+
+  def active_exception
+    nil
   end
 end

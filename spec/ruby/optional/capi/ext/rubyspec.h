@@ -190,6 +190,7 @@
 #define HAVE_RB_ENCDB_ALIAS                1
 #define HAVE_RB_ENC_ASSOCIATE              1
 #define HAVE_RB_ENC_ASSOCIATE_INDEX        1
+#define HAVE_RB_ENC_COMPATIBLE             1
 #define HAVE_RB_ENC_COPY                   1
 #define HAVE_RB_ENC_FIND                   1
 #define HAVE_RB_ENC_FIND_INDEX             1
@@ -198,9 +199,12 @@
 #define HAVE_RB_ENC_GET                    1
 #define HAVE_RB_ENC_GET_INDEX              1
 #define HAVE_RB_ENC_SET_INDEX              1
+#define HAVE_RB_ENC_STR_CODERANGE          1
+#define HAVE_RB_ENC_STR_NEW                1
 #define HAVE_RB_ENC_TO_INDEX               1
 #define HAVE_RB_OBJ_ENCODING               1
 
+#define HAVE_RB_STR_ENCODE                 1
 #define HAVE_RB_STR_NEW_CSTR               1
 #define HAVE_RB_USASCII_STR_NEW            1
 #define HAVE_RB_USASCII_STR_NEW_CSTR       1
@@ -449,10 +453,6 @@
 #define HAVE_RB_STR_INSPECT                1
 #define HAVE_RB_STR_INTERN                 1
 #define HAVE_RB_STR_LEN                    1
-#ifdef RUBY_VERSION_IS_1_9
-#define HAVE_RB_STR_LENGTH                 1
-#define HAVE_RB_STR_EQUAL                  1
-#endif
 #define HAVE_RB_STR_NEW                    1
 #define HAVE_RB_STR_NEW2                   1
 #define HAVE_RB_STR_NEW3                   1
@@ -463,9 +463,6 @@
 #define HAVE_RB_STR_RESIZE                 1
 #define HAVE_RB_STR_SET_LEN                1
 #define HAVE_RB_STR_SPLIT                  1
-#ifdef RUBY_VERSION_IS_1_9
-#define HAVE_RB_STR_SUBSEQ                 1
-#endif
 #define HAVE_RB_STR_SUBSTR                 1
 #define HAVE_RB_STR_TO_STR                 1
 #define HAVE_RSTRING                       1
@@ -473,6 +470,16 @@
 #define HAVE_RSTRING_PTR                   1
 #define HAVE_STR2CSTR                      1
 #define HAVE_STRINGVALUE                   1
+
+#ifdef RUBY_VERSION_IS_1_9
+#define HAVE_RB_LOCALE_STR_NEW             1
+#define HAVE_RB_LOCALE_STR_NEW_CSTR        1
+#define HAVE_RB_STR_CONV_ENC               1
+#define HAVE_RB_STR_CONV_ENC_OPTS          1
+#define HAVE_RB_STR_LENGTH                 1
+#define HAVE_RB_STR_EQUAL                  1
+#define HAVE_RB_STR_SUBSEQ                 1
+#endif
 
 /* Struct */
 #define HAVE_RB_STRUCT_AREF                1

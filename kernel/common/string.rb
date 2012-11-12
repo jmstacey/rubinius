@@ -7,6 +7,13 @@ DEFAULT_RECORD_SEPARATOR = "\n"
 class String
   include Comparable
 
+  def self.allocate
+    str = super()
+    str.__data__ = Rubinius::ByteArray.new(1)
+    str.num_bytes = 0
+    str
+  end
+
   attr_accessor :data
 
   alias_method :__data__, :data
@@ -62,7 +69,9 @@ class String
   end
 
   def +(other)
-    String.new(self) << StringValue(other)
+    other = StringValue(other)
+    Rubinius::Type.check_encoding_compatible self, other
+    String.new(self) << other
   end
 
   def <=>(other)
@@ -133,15 +142,15 @@ class String
       start   = Rubinius::Type.coerce_to index.first, Fixnum, :to_int
       length  = Rubinius::Type.coerce_to index.last,  Fixnum, :to_int
 
-      start += @num_bytes if start < 0
+      start += size if start < 0
 
-      length += @num_bytes if length < 0
+      length += size if length < 0
       length += 1 unless index.exclude_end?
 
-      return "" if start == @num_bytes
-      return nil if start < 0 || start > @num_bytes
+      return "" if start == size
+      return nil if start < 0 || start > size
 
-      length = @num_bytes if length > @num_bytes
+      length = size if length > size
       length = length - start
       length = 0 if length < 0
 
@@ -276,12 +285,6 @@ class String
     else
       nil
     end
-  end
-
-  def clear
-    Rubinius.check_frozen
-    self.num_bytes = 0
-    self
   end
 
   def downcase

@@ -134,14 +134,16 @@ namespace rubinius {
       if(self->resolve_primitive(state)) {
         mcode->fallback = execute;
       } else {
-        mcode->setup_argument_handler(self);
+        mcode->setup_argument_handler();
       }
 
       // We need to have an explicit memory barrier here, because we need to
       // be sure that mcode is completely initialized before it's set.
       // Otherwise another thread might see a partially initialized
       // MachineCode.
-      atomic::write(&machine_code_, mcode);
+      atomic::write(&self->machine_code_, mcode);
+
+      set_executor(mcode->fallback);
     }
 
     self->hard_unlock(state, gct);

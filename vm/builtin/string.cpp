@@ -385,7 +385,7 @@ namespace rubinius {
         }
         ascii = false;
 
-        append_bytes(buf, n);
+        append_bytes(buf, i);
 
       } else {
         int n = snprintf(reinterpret_cast<char*>(buf),
@@ -619,7 +619,7 @@ namespace rubinius {
 
   Encoding* String::encoding(STATE) {
     if(encoding_->nil_p()) {
-      encoding(state, Encoding::usascii_encoding(state));
+      encoding(state, Encoding::ascii8bit_encoding(state));
     }
     return encoding_;
   }
@@ -787,13 +787,13 @@ namespace rubinius {
     native_int current_size = byte_size();
     native_int data_size = as<ByteArray>(data_)->size();
 
-    // Clamp the string size the maximum underlying byte array size
+    // Clamp the string size to the maximum underlying byte array size
     if(unlikely(current_size > data_size)) {
       current_size = data_size;
     }
 
     native_int new_size = current_size + length;
-    native_int capacity = data_size;
+    native_int capacity = data_size == 0 ? 2 : data_size;
 
     if(capacity <= new_size) {
       // capacity needs one extra byte of room for the trailing null
@@ -1095,6 +1095,8 @@ namespace rubinius {
     free(output);
 
     infect(state, result);
+    result->encoding(state, encoding());
+
     return result;
   }
 
@@ -1512,20 +1514,22 @@ namespace rubinius {
   }
 
   OnigEncodingType* String::get_encoding_kcode_fallback(STATE) {
-    if(encoding_->nil_p()) {
-      switch(state->shared().kcode_page()) {
-      default:
-      case kcode::eAscii:
-        return ONIG_ENCODING_ASCII;
-      case kcode::eEUC:
-        return ONIG_ENCODING_EUC_JP;
-      case kcode::eSJIS:
-        return ONIG_ENCODING_Shift_JIS;
-      case kcode::eUTF8:
-        return ONIG_ENCODING_UTF_8;
+    if(!LANGUAGE_18_ENABLED(state)) {
+      if(!encoding_->nil_p()) {
+        return encoding_->get_encoding();
       }
-    } else {
-      return encoding_->get_encoding();
+    }
+
+    switch(state->shared().kcode_page()) {
+    default:
+    case kcode::eAscii:
+      return ONIG_ENCODING_ASCII;
+    case kcode::eEUC:
+      return ONIG_ENCODING_EUC_JP;
+    case kcode::eSJIS:
+      return ONIG_ENCODING_Shift_JIS;
+    case kcode::eUTF8:
+      return ONIG_ENCODING_UTF_8;
     }
   }
 
@@ -1680,6 +1684,30 @@ namespace rubinius {
     }
 
     return force_as<Fixnum>(Primitives::failure());
+  }
+
+  Object* String::chr_at(STATE, Fixnum* byte) {
+    native_int i = byte->to_native();
+    native_int size = byte_size();
+    int n = 1;
+
+    if(i < 0 || i >= size) return cNil;
+
+    if(!byte_compatible_p(encoding_)) {
+      OnigEncodingType* enc = encoding_->get_encoding();
+      uint8_t* p = byte_address() + i;
+      uint8_t* e = byte_address() + byte_size();
+
+      int c = Encoding::precise_mbclen(p, e, enc);
+
+      if(ONIGENC_MBCLEN_CHARFOUND_P(c)) {
+        n = ONIGENC_MBCLEN_CHARFOUND_LEN(c);
+      } else {
+        return cNil;
+      }
+    }
+
+    return byte_substring(state, i, n);
   }
 
   void String::Info::show(STATE, Object* self, int level) {

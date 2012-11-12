@@ -63,6 +63,10 @@ def install_bin(source, target)
   end
 end
 
+def install_extra_bins(prefix, target)
+  install_file "#{prefix}/testrb", prefix, "#{target}#{BUILD_CONFIG[:bindir]}", :mode => 0755
+end
+
 def install_runtime(prefix, target)
   FileList[
     "#{prefix}/platform.conf",
@@ -94,8 +98,14 @@ def install_build_lib(prefix, target)
 end
 
 def install_lib(prefix, target)
-  FileList["#{prefix}/**/*.rb"].each do |name|
+  FileList["#{prefix}/**/*.rb", "#{prefix}/**/rubygems/**/*"].each do |name|
     install_file name, prefix, "#{target}#{BUILD_CONFIG[:libdir]}"
+  end
+end
+
+def install_transcoders(prefix, target)
+  FileList["#{prefix}/19/encoding/converter/*#{$dlext}"].each do |name|
+    install_file name, prefix, "#{target}#{BUILD_CONFIG[:libdir]}", :mode => 0755
   end
 end
 
@@ -151,6 +161,12 @@ EXE=$(basename $0)
 exec #{BUILD_CONFIG[:stagingdir]}#{BUILD_CONFIG[:bindir]}/$EXE "$@"
         EOS
       end
+    end
+  end
+
+  task :extra_bins do
+    if BUILD_CONFIG[:stagingdir]
+      install_extra_bins "#{BUILD_CONFIG[:sourcedir]}/bin", BUILD_CONFIG[:stagingdir]
     end
   end
 
@@ -245,6 +261,8 @@ oppropriate command to elevate permissions (eg su, sudo).
 
         install_lib "#{stagingdir}#{BUILD_CONFIG[:libdir]}", prefixdir
 
+        install_transcoders "#{stagingdir}#{BUILD_CONFIG[:libdir]}", prefixdir
+
         install_tooling "#{stagingdir}#{BUILD_CONFIG[:libdir]}", prefixdir
 
         install_documentation "#{stagingdir}#{BUILD_CONFIG[:libdir]}", prefixdir
@@ -255,6 +273,8 @@ oppropriate command to elevate permissions (eg su, sudo).
 
         bin = "#{BUILD_CONFIG[:bindir]}/#{BUILD_CONFIG[:program_name]}"
         install_bin "#{stagingdir}#{bin}", prefixdir
+
+        install_extra_bins "#{stagingdir}/#{BUILD_CONFIG[:bindir]}", prefixdir
 
         install_gems "#{stagingdir}#{BUILD_CONFIG[:gemsdir]}", prefixdir
 

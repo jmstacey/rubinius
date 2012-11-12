@@ -71,6 +71,11 @@ class Thread
     Kernel.raise PrimitiveFailure, "Thread#unlock_locks primitive failed"
   end
 
+  def current_exception
+    Rubinius.primitive :thread_current_exception
+    Kernel.raise PrimitiveFailure, "Thread#current_exception primitive failed"
+  end
+
   @abort_on_exception = false
 
   def self.abort_on_exception
@@ -106,8 +111,7 @@ class Thread
       run obj
       dup
 
-      push_false
-      send :setup, 1, true
+      send :setup, 0, true
       pop
 
       run args
@@ -245,7 +249,7 @@ class Thread
     begin
       if exc.equal?(undefined)
         no_argument = true
-        exc = $!
+        exc = active_exception
       end
 
       if exc.respond_to? :exception
